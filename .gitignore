@@ -1,0 +1,4 @@
+__pycache__/
+env/
+my_finance_env/
+*.pyc
