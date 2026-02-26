@@ -19,3 +19,33 @@ def generate_signals(df):
     
     df['Signal'] = df['Position'].diff().shift(1).fillna(0)
     return df
+
+def get_ga_features(df):
+    feat = pd.DataFrame(index=df.index)
+    
+    feat['Close'] = df['Close']
+    
+    feat['SMA_Signal'] = (df['SMA_Short'] > df['SMA_Long']).astype(int)
+    
+    feat['RSI_Filter'] = (df['RSI'] < 70).astype(int)
+    
+    feat['Price_Above_SMA'] = (df['Close'] > df['SMA_Short']).astype(int)
+    
+    feat['Target'] = (df['Close'].shift(-5) > df['Close']).astype(int)
+    
+    return feat.dropna()
+
+def calculate_sharpe_ratio(df, risk_free_rate=0):
+    returns = df['Daily_Return'].dropna()
+    
+    avg_return = returns.mean()
+    volatility = returns.std()
+    
+    if volatility == 0:
+        return 0
+    
+    sharpe_daily = (avg_return - (risk_free_rate / 252)) / volatility
+    
+    sharpe_annualized = sharpe_daily * np.sqrt(252)
+    
+    return sharpe_annualized
